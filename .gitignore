@@ -93,3 +93,4 @@ target/
 
 # Custom
 /simulation/
+.lock
