@@ -23,14 +23,6 @@ class RAS_Utility():
 
         return struct_attrs_df
 
-    # def get_hdf_runtime_data(self, hdf_loc):
-    #     with h5py.File(hdf_loc, 'r') as f:
-    #         runtime_data = f['Results']['Time Series']['Flow']['Flow Time Series']['Flow Time Series Data']
-    #         runtime_data_df = np.array(runtime_data)
-    #         runtime_data_df = pd.DataFrame(runtime_data_df)
-
-    #     return runtime_data_df
-
     def get_hdf_runtime_data(self, hdf_loc):
         # creates variable of hdf file that will be read
         with h5py.File(hdf_loc, 'r') as f:
@@ -114,5 +106,26 @@ class RAS_Utility():
             runtimeAnalysis_df['Error'].loc[runtimeAnalysis_df['Error'] == 0 ] = np.nan
 
         return runtimeAnalysis_df
+
+    def get_manning_data(self, hdf_loc):
+        # creates variable of hdf file that will be read
+        with h5py.File(hdf_loc, 'r') as f:
+            # sets path within hdf file to find simulation window
+            manning_data = f['Geometry']['Land Cover (Manning\'s n)']['Calibration Table']
+
+            # converts 2D Flow Area Information to dataframe
+            manning_data = np.array(manning_data)
+            # convert numpy array to pandas dataframe
+            manning_data = pd.DataFrame(manning_data)
+
+            # convert b strings to strings
+            temp = manning_data.select_dtypes([object])
+            # decode b strings
+            temp = temp.stack().str.decode('utf-8').unstack()
+
+            # assign decoded strings to dataframe
+            for col in temp:
+                manning_data[col] = temp[col]
+        return manning_data
 
 ras = RAS_Utility()
