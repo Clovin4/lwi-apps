@@ -51,8 +51,8 @@ class RAS_Utility():
             geometry_2DName = str(planDataGeometry['Name'][0]).split("'")[1]
 
             # sets path within hdf file to find the computed timestamps and timesteps in the computation block
-            hdfplan_OutTimeDateStamp = hdfFile['Results']['Unsteady']['Output']['Output Blocks']['Computation Block']['Global']['Time Date Stamp (ms)']
-            hdfplan_OutTimeDateStep = hdfFile['Results']['Unsteady']['Output']['Output Blocks']['DSS Hydrograph Output']['Unsteady Time Series']['Time Step']
+            hdfplan_OutTimeDateStamp = f['Results']['Unsteady']['Output']['Output Blocks']['Computation Block']['Global']['Time Date Stamp (ms)']
+            hdfplan_OutTimeDateStep = f['Results']['Unsteady']['Output']['Output Blocks']['DSS Hydrograph Output']['Unsteady Time Series']['Time Step']
 
             # converts plan infomration to pandas dataframe
             planDataOutTimeDateStamp = pd.Series(hdfplan_OutTimeDateStamp).map(lambda x: x.decode('ascii'))
@@ -80,8 +80,8 @@ class RAS_Utility():
             planDataOutTimeDateStamp_df['Time Step'] = pd.Series(timeDiff)
 
             # sets path within hdf file to find the 2D Iterations and 2D Itteration Error
-            hdfplan_Out2DItterError = hdfFile['Results']['Unsteady']['Output']['Output Blocks']['Computation Block']['2D Global']['2D Iteration Error']
-            hdfplan_Out2DItter = hdfFile['Results']['Unsteady']['Output']['Output Blocks']['Computation Block']['2D Global']['2D Iterations']
+            hdfplan_Out2DItterError = f['Results']['Unsteady']['Output']['Output Blocks']['Computation Block']['2D Global']['2D Iteration Error']
+            hdfplan_Out2DItter = f['Results']['Unsteady']['Output']['Output Blocks']['Computation Block']['2D Global']['2D Iterations']
 
             # converts plan infomration to pandas dataframe
             planDataOut2DItterError = pd.DataFrame(hdfplan_Out2DItterError, columns=['Error'])
@@ -127,5 +127,8 @@ class RAS_Utility():
             for col in temp:
                 manning_data[col] = temp[col]
         return manning_data
+    
+    def get_model_info():
+        pass
 
 ras = RAS_Utility()
