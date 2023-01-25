@@ -1,6 +1,7 @@
 import h5py
 import numpy as np
 import pandas as pd
+from pathlib import Path
 
 class RAS_Utility():
     '''This class contains utility functions for HEC-RAS, this is mostly data scraping tools to interact with the HDF5 files'''
@@ -8,6 +9,44 @@ class RAS_Utility():
 
     def __init__(self):
         pass
+
+    def get_model_info(self, model_path):
+        try:
+            for child in Path(model_path).glob('*.prj'):
+                if child.is_file():
+                    prj_file=child
+        except:
+            print('No project file found')
+
+        # read the project file and get the plan file extension
+        prj_file_list=(Path.read_text(prj_file).split("\n"))
+        plan_list = [f'.{x.split("=")[-1]}' for x in prj_file_list if x.startswith("Plan File=")]
+
+        # find all files whose extension is in plan_list return the full path
+        plan_file_list = [x for x in Path(model_path).glob('*') if x.suffix in plan_list and x.stem != 'Backup']
+
+        # create a dictionary of plan names and file paths the name is found in the plan file
+        plan_dict = {}
+        for plan_file in plan_file_list:
+            plan_name = Path.read_text(plan_file).split("\n")[0].split("=")[-1]
+            plan_dict[plan_name] = plan_file
+
+        # create a dataframe of plan names and file paths
+        plan_df = pd.DataFrame.from_dict(plan_dict, orient='index', columns=['plan_file'])
+
+        # add the plans geometry file to plan_df
+        plan_df['geom_file'] = plan_df['plan_file'].apply(lambda x: Path.read_text(x).split("\n")[4].split("=")[-1])
+
+        # use glob to find the geometry file
+        plan_df['geom_file'] = plan_df['geom_file'].apply(lambda x: [y for y in Path(model_path).glob(f'*{x}')][0])
+
+        # add hdf file extension to geom_file if it exists
+        plan_df['geom_file_hdf'] = plan_df['geom_file'].apply(lambda x: Path(f'{x}.hdf') if Path(f'{x}.hdf').exists() else None)
+
+        # add hdf file extension to plan_file if it exists
+        plan_df['plan_file_hdf'] = plan_df['plan_file'].apply(lambda x: Path(f'{x}.hdf') if Path(f'{x}.hdf').exists() else None)
+
+        return plan_df
 
     def get_hdf_datasets(self, hdf_loc):
         with h5py.File(hdf_loc, 'r') as f:
@@ -127,8 +166,5 @@ class RAS_Utility():
             for col in temp:
                 manning_data[col] = temp[col]
         return manning_data
-    
-    def get_model_info():
-        pass
 
 ras = RAS_Utility()
