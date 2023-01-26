@@ -10,7 +10,7 @@ class RAS_Utility():
     def __init__(self):
         pass
 
-    def get_model_info(self, model_path):
+    def get_model_paths(self, model_path):
         try:
             for child in Path(model_path).glob('*.prj'):
                 if child.is_file():
@@ -38,7 +38,7 @@ class RAS_Utility():
         plan_df['geom_file'] = plan_df['plan_file'].apply(lambda x: Path.read_text(x).split("\n")[4].split("=")[-1])
 
         # use glob to find the geometry file
-        plan_df['geom_file'] = plan_df['geom_file'].apply(lambda x: [y for y in Path(model_path).glob(f'*{x}')][0])
+        plan_df['geom_file'] = plan_df['geom_file'].apply(lambda x: [y for y in Path(model_path).glob(f'*{prj_file.stem}.{x}')][0])
 
         # add hdf file extension to geom_file if it exists
         plan_df['geom_file_hdf'] = plan_df['geom_file'].apply(lambda x: Path(f'{x}.hdf') if Path(f'{x}.hdf').exists() else None)
