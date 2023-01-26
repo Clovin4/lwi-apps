@@ -6,11 +6,7 @@ from pathlib import Path
 class RAS_Utility():
     '''This class contains utility functions for HEC-RAS, this is mostly data scraping tools to interact with the HDF5 files'''
 
-
-    def __init__(self):
-        pass
-
-    def get_model_paths(self, model_path):
+    def get_model_paths(model_path):
         try:
             for child in Path(model_path).glob('*.prj'):
                 if child.is_file():
@@ -46,9 +42,11 @@ class RAS_Utility():
         # add hdf file extension to plan_file if it exists
         plan_df['plan_file_hdf'] = plan_df['plan_file'].apply(lambda x: Path(f'{x}.hdf') if Path(f'{x}.hdf').exists() else None)
 
+        plan_df.index=plan_df.index.str.replace(' ','_').str.lower()
+
         return plan_df
 
-    def get_hdf_datasets(self, hdf_loc):
+    def get_structure_attrs(hdf_loc):
         with h5py.File(hdf_loc, 'r') as f:
             struct_attrs = f['Geometry']['Structures']['Attributes']
             struct_attrs_df = np.array(struct_attrs)
@@ -60,9 +58,11 @@ class RAS_Utility():
             for col in temp_df:
                 struct_attrs_df[col] = temp_df[col]
 
+            struct_attrs_df.columns=struct_attrs_df.columns.str.replace(' ','_').str.lower()
+
         return struct_attrs_df
 
-    def get_hdf_runtime_data(self, hdf_loc):
+    def get_sim_data(hdf_loc):
         # creates variable of hdf file that will be read
         with h5py.File(hdf_loc, 'r') as f:
 
@@ -130,23 +130,23 @@ class RAS_Utility():
             runtimeAnalysis_df = pd.DataFrame()
 
             # assign data and column names to runtime analysis
-            runtimeAnalysis_df['Time Stamp'] = planDataOutTimeDateStamp_df[0]
-            runtimeAnalysis_df['Time Step'] = planDataOutTimeDateStamp_df['Time Step']
-            runtimeAnalysis_df['Iterations'] = planDataOut2DItter['Iterations']
-            runtimeAnalysis_df['Error'] = planDataOut2DItterError['Error']
-            runtimeAnalysis_df['Cell'] = planDataOut2DItter['Cell']
+            runtimeAnalysis_df['time_stamp'] = planDataOutTimeDateStamp_df[0]
+            runtimeAnalysis_df['time_step'] = planDataOutTimeDateStamp_df['Time Step']
+            runtimeAnalysis_df['iterations'] = planDataOut2DItter['Iterations']
+            runtimeAnalysis_df['error'] = planDataOut2DItterError['Error']
+            runtimeAnalysis_df['cell'] = planDataOut2DItter['Cell']
 
             # set cells marked as -1 to null
 
-            runtimeAnalysis_df['Cell'].loc[runtimeAnalysis_df['Cell'] < 0 ] = np.nan
+            runtimeAnalysis_df['cell'].loc[runtimeAnalysis_df['Cell'] < 0 ] = np.nan
 
 
             # set zero error cells to null
-            runtimeAnalysis_df['Error'].loc[runtimeAnalysis_df['Error'] == 0 ] = np.nan
+            runtimeAnalysis_df['error'].loc[runtimeAnalysis_df['error'] == 0 ] = np.nan
 
         return runtimeAnalysis_df
 
-    def get_manning_data(self, hdf_loc):
+    def get_manning_data(hdf_loc):
         # creates variable of hdf file that will be read
         with h5py.File(hdf_loc, 'r') as f:
             # sets path within hdf file to find simulation window
@@ -167,4 +167,4 @@ class RAS_Utility():
                 manning_data[col] = temp[col]
         return manning_data
 
-ras = RAS_Utility()
+ras = RAS_Utility
