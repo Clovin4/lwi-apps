@@ -65,7 +65,7 @@ class Simulation():
         # match the cell number to the site id and rename the columns
         simulated.columns = gage_df.SITE_ID
         # create a holomap to show the WSE for each site for the observed and simulated data
-        gage_map=hv.HoloMap({site: hv.Curve((observed.index, observed[site]), label='Observed') * hv.Curve((simulated.index, simulated[site]), label='Simulated') for site in simulated.columns}, kdims='site')
+        gage_map=hv.HoloMap({site: hv.Curve((observed.index, observed[site]), label='Observed') * hv.Curve((simulated.index, simulated[site]), label='Simulated') for site in simulated.columns}, kdims='site').opts(title='Water Surface Elevation', xlabel='Time', ylabel='WSE (ft)', width=800, height=400)
         # return the observed and simulated dataframes
         return observed, simulated, gage_map
 
