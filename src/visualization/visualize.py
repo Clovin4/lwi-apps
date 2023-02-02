@@ -12,6 +12,9 @@ class Simulation():
     def getObservedSimulatedMap(hdf_loc, gageVector, observed_csv):
         """
         This function will read in the hdf file, gage vector, and observed csv and return the observed and simulated dataframes
+        Right now this function is hard coded to EPSG:6479 as the crs for the gage vector and the cells
+        The function will also only work with the fixed time step in RAS
+        The observed csv must have a datetime index that match the time interval in the hdf file, it is recomended to use the time interval from the hdf file when preparing the observed csv file
         """
         # read in the gage vector
         gageVector=gpd.read_file(gageVector)
