@@ -80,6 +80,7 @@ target/
 
 # exclude HEC-RAS model from version control
 /simulation/
+/simulation-1D/
 
 # Mac OS-specific storage files
 .DS_Store
