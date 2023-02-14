@@ -9,6 +9,15 @@ hv.extension('plotly')
 
 class Simulation():
 
+    def get_rmse(self, observed, simulated):
+        """
+        This function will take in the observed and simulated dataframes and return the RMSE for each site
+        """
+        # get the RMSE for each site
+        rmse = np.sqrt(((observed - simulated) ** 2).mean())
+        # return the RMSE
+        return rmse
+
     def getObservedSimulatedMap(hdf_loc, gageVector, observed_csv):
         """
         This function will read in the hdf file, gage vector, and observed csv and return the observed and simulated dataframes
